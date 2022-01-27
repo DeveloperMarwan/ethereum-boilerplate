@@ -29,7 +29,8 @@
     "watch:events": "moralis-admin-cli add-contract",
     "deploy": "node Truffle/scripts/deployContract.js",
     "deploypage": "gh-pages -d build",
-    "clean": "npx gh-pages-clean"
+    "clean": "npx gh-pages-clean",
+    "surge": "cp build/index.html build/200.html && surge ./build"
   },
   "eslintConfig": {
     "extends": [
@@ -50,6 +51,7 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^3.2.3"
+    "gh-pages": "^3.2.3",
+    "surge": "^0.21.5"
   }
 }

@@ -33,3 +33,6 @@ typechain
 #Truffle files
 /Truffle/build
 /Truffle/data
+.env.example
+build.zip
+build.zip

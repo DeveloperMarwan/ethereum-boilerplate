@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import {
   BrowserRouter as Router,
@@ -11,18 +11,21 @@ import Chains from "components/Chains";
 import TokenPrice from "components/TokenPrice";
 import ERC20Balance from "components/ERC20Balance";
 import ERC20Transfers from "components/ERC20Transfers";
-import DEX from "components/DEX";
+// import DEX from "components/DEX";
 import NFTBalance from "components/NFTBalance";
-import Wallet from "components/Wallet";
-import { Layout, Tabs } from "antd";
+// import Wallet from "components/Wallet";
+import { Layout, Tabs, Card, Input, Button, List } from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
-import QuickStart from "components/QuickStart";
+// import QuickStart from "components/QuickStart";
 import Contract from "components/Contract/Contract";
 import Text from "antd/lib/typography/Text";
 import Ramper from "components/Ramper";
 import MenuItems from "./components/MenuItems";
+import { SALIENT_YACHT_NFT_ADDR, SALIENT_YACHT_NFT_ABI, SALIENT_YAGHT_STREAM_ABI } from "./constants";
+import { ConsoleSqlOutlined } from "@ant-design/icons";
+//import Moralis from "moralis/types";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -55,9 +58,9 @@ const styles = {
     fontWeight: "600",
   },
 };
-const App = ({ isServerInfo }) => {
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
-    useMoralis();
+
+function App ({ isServerInfo }) {
+  const { Moralis, isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } = useMoralis();
 
   useEffect(() => {
     const connectorId = window.localStorage.getItem("connectorId");
@@ -66,6 +69,34 @@ const App = ({ isServerInfo }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
 
+  const [noOfNfts, setNoOfNfts] = useState(0);
+  const [nftType, setNftType] = useState(0); //0: Common, 1: Rare, 2: Ultra Rare 
+  const [nftTxnAmount, setNftTxnAmount] = useState(0n);
+  const [streamContractAddr, setStreamContractAddr] = useState();
+  const [userStreams, setUserStreams] = useState([]);
+  const [selectedStream, setSelectedStream] = useState("");
+  const [withdrawalAmt, setWithdrawalAmt] = useState(0);
+  const [streamsData, setStreamsData] = useState([]);
+  const [currentNftPrice, setCurrentNftPrice] = useState(0);
+
+  const nftContractOptions = {
+    contractAddress: SALIENT_YACHT_NFT_ADDR,
+    abi: SALIENT_YACHT_NFT_ABI,
+  };
+
+  const streamContractOptions = {
+    contractAddress: streamContractAddr,
+    abi: SALIENT_YAGHT_STREAM_ABI,
+  };
+
+  const streamContractOptions_2 = {
+    chain: "0xa869",
+    address: streamContractAddr,
+    abi: SALIENT_YAGHT_STREAM_ABI,
+  };
+  
+  //let streamsDisplay = "";
+  
   return (
     <Layout style={{ height: "100vh", overflow: "auto" }}>
       <Router>
@@ -84,27 +115,152 @@ const App = ({ isServerInfo }) => {
             <Account />
           </div>
         </Header>
-
         <div style={styles.content}>
           <Switch>
-            <Route exact path="/quickstart">
-              <QuickStart isServerInfo={isServerInfo} />
+            <Route path="/salientyachtsnft">
+              <Card title="Salient Yachts" size="large" style={{ marginTop: 5, width: "100%" }}>
+                <div>Which NFT (0 = Common, 1 = Rare, 2 = Ultra Rare: <Input size="large" type="number" value={nftType} onChange={e => setNftType(e.target.value)} /></div>
+                <div>How Many NFT's: <Input size="large" type="number" value={noOfNfts} onChange={e => setNoOfNfts(e.target.value)} /></div>
+                <div>Payment (AVAX): <Input size="large" type="number" value={nftTxnAmount} onChange={e => setNftTxnAmount(e.target.value)} /></div>
+                <div><Button onClick={async () => {
+                  console.log("----> noOfNfts     = ", noOfNfts);
+                  console.log("----> nftTxnAmount = ", nftTxnAmount);
+                  // const nftTxnAmountInWei = Moralis.Units.ETH(nftTxnAmount + "");
+                  // console.log("----> nftTxnAmountInWei = ", nftTxnAmountInWei);
+                  const nftTxnResult = await Moralis.executeFunction({ functionName: 'buyYachtNFT', msgValue: nftTxnAmount, 
+                  params: {
+                    numberOfTokens: noOfNfts,
+                    nftType: nftType,
+                  },...nftContractOptions });
+                  console.log("----> nftTxnResult = ", nftTxnResult);
+                  console.log("----> currentNftPrice = ", currentNftPrice);
+                }}>Buy NFT's</Button></div>
+              </Card>
             </Route>
-            <Route path="/wallet">
-              <Wallet />
-            </Route>
-            <Route path="/1inch">
-              <Tabs defaultActiveKey="1" style={{ alignItems: "center" }}>
-                <Tabs.TabPane tab={<span>Ethereum</span>} key="1">
-                  <DEX chain="eth" />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={<span>Binance Smart Chain</span>} key="2">
-                  <DEX chain="bsc" />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={<span>Polygon</span>} key="3">
-                  <DEX chain="polygon" />
-                </Tabs.TabPane>
-              </Tabs>
+            <Route path="/salientyachtrewards">
+              <Card title="Salient Yachts Rewards" size="large" style={{ marginTop: 25, width: "100%" }}>
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  <Button onClick={async () => {
+                      //get the stream contract address
+                      const rewardAddress = await Moralis.executeFunction({ functionName: 'streamContract', params:{}, ...nftContractOptions });
+                      console.log("----> rewardAddress = ", rewardAddress);
+                      setStreamContractAddr(rewardAddress);
+
+                      //query Moralis's event table RewardStreamCreatedEvent to get the list of streams for the current user
+                      const currentUser = Moralis.User.current();
+                      console.log("-----> currentUser.ethAddress: ", currentUser.get("ethAddress"));
+
+                      const streamEvtTbl = Moralis.Object.extend("SYONEStreamCreated");
+                      const query = new Moralis.Query(streamEvtTbl);
+                      query.equalTo("recipient", currentUser.get("ethAddress").toLowerCase());
+                      query.equalTo("sender", SALIENT_YACHT_NFT_ADDR.toLowerCase());
+                      const qtyResult = await query.find();
+                      console.log("qtyResult ", qtyResult);
+                      console.log("Successfully retrieved ", qtyResult.length, " Stream records.");
+                      //setUserStreams([]);
+                      console.log('object.id - nftTokenId - streamId');
+                      for (let i = 0; i < qtyResult.length; i++) {
+                        const object = qtyResult[i];
+                        console.log(object.id, ' - ', object.get('nftTokenId'), ' - ', object.get('streamId'));
+                        userStreams.push(object.get('streamId'));
+                      }
+                      console.log("-----> userStreams: " + JSON.stringify(userStreams));
+                  }}>Get Reward Streams</Button>
+                  {/*streamsDisplay*/}
+                </div>
+                {/* get all streams data */}
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  <Button onClick={async () => {
+                    console.log("----> userStreams(length): " + userStreams.length);
+                    if (userStreams.length > 0) {
+                      for (let i = 0; i < userStreams.length; i++) {
+                        const aStream = userStreams[i];
+                        const aStreamData = await Moralis.executeFunction({ functionName: 'getStream', 
+                          params: {
+                            streamId: aStream
+                          }, 
+                          ...streamContractOptions
+                        });
+                        console.log("-----> aStreamData: " + JSON.stringify(aStreamData));
+                        streamsData.push(aStreamData);
+                      }
+                    }                    
+                  }}>Get Streams Data</Button>
+                </div>
+                <div>Selected Stream: <Input size="large" type="number" value={selectedStream} onChange={e => setSelectedStream(e.target.value)} /></div>
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  {/* get the balace for the selected stream*/}
+                  <Button onClick={async () => {
+                    console.log("-----> selectedStream: " + selectedStream);
+                    const currentUser = Moralis.User.current();
+                    const streamBalance = await Moralis.executeFunction({ functionName: 'balanceOf', 
+                      params:{
+                        streamId: selectedStream,
+                        who: currentUser.get("ethAddress")
+                      }, 
+                      ...streamContractOptions 
+                    });
+                    console.log("----> streamBalance: " + streamBalance);               
+                  }}>Get Stream Balance</Button>
+                </div>
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  {/* withdraw from the selected stream*/}
+                  <div>Withdrawal Amount: <Input size="large" type="number" value={withdrawalAmt} onChange={e => setWithdrawalAmt(e.target.value)} /></div>
+                  <div>
+                  <Button onClick={async () => {
+                    console.log("-----> selectedStream: " + selectedStream);
+                    const withdrawalResult = await Moralis.executeFunction({ functionName: 'withdrawFromStream',
+                      params: {
+                        streamId: selectedStream,
+                        amount: Moralis.Units.ETH(withdrawalAmt + "")
+                      },
+                      ...streamContractOptions 
+                    });
+                  }}>Withdraw From Stream</Button>
+                  </div>
+                </div>
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  {/* get balance of streams */}
+                  <Button onClick={async () => {
+                    console.log("----> userStreams(length): " + userStreams.length);
+                    console.log("----> userStreams: " + JSON.stringify(userStreams));
+                    const currentUser = Moralis.User.current();
+                    console.log("----> currentUser.get('ethAddress'): " + currentUser.get("ethAddress"));
+                    if (userStreams.length > 0) {
+                      const userStreamsIdList = userStreams.map(Number);
+                      console.log("-----> userStreamsIdList: " + JSON.stringify(userStreamsIdList));
+                      // executeFunction
+                      // runContractFunction
+                      
+                      const balaceOfStreams = await Moralis.executeFunction({ functionName: 'balanceOfStreams', 
+                        params: {
+                          streamIdList: userStreams,
+                          who: currentUser.get("ethAddress")
+                        }, 
+                        ...streamContractOptions
+                      });
+                      console.log("----> balaceOfStreams: " + JSON.stringify(balaceOfStreams));
+                    }                    
+                  }}>Get Balance of Streams</Button>
+                </div>
+                <div style={{ marginTop: 5, width: "100%" }}>
+                  <Button onClick={async() => {
+                    console.log("----> userStreams(length): " + userStreams.length);
+                    console.log("----> userStreams: " + JSON.stringify(userStreams));
+                    const currentUser = Moralis.User.current();
+                    console.log("----> currentUser.get('ethAddress'): " + currentUser.get("ethAddress"));
+                    if (userStreams.length > 0) {
+                      const opResult = await Moralis.executeFunction({functionName: 'withdrawFromStreams',
+                        params: {
+                          streamIdList: userStreams,
+                        },
+                        ...streamContractOptions
+                      });
+                      console.log("----> opResult: " + JSON.stringify(opResult));
+                    }
+                  }}>Withdraw from Streams</Button>
+                </div>
+              </Card>
             </Route>
             <Route path="/erc20balance">
               <ERC20Balance />

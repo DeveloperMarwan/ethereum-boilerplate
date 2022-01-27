@@ -24,9 +24,14 @@ export default function Contract() {
 
   /** Returns true in case if contract is deployed to active chain in wallet */
   const isDeployedToActiveChain = useMemo(() => {
+    console.log("Contract.jsx --> contract.networks: " + JSON.stringify(contract?.networks));
     if (!contract?.networks) return undefined;
+    console.log("Contract.jsx --> chainId: " + chainId);
+    console.log("Contract.jsx --> chainId: " + [parseInt(chainId, 16)]);
+    console.log("Contract.jsx --> chainId: " + [parseInt(chainId, 16)] in contract.networks);
     return [parseInt(chainId, 16)] in contract.networks;
   }, [contract, chainId]);
+  console.log("Contract.jsx ---> isDeployedToActiveChain: " + isDeployedToActiveChain);
 
   const contractAddress = useMemo(() => {
     if (!isDeployedToActiveChain) return null;

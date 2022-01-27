@@ -18,6 +18,7 @@ function MenuItems() {
       }}
       defaultSelectedKeys={[pathname]}
     >
+    {/*   
       <Menu.Item key="/quickstart">
         <NavLink to="/quickstart">🚀 Quick Start</NavLink>
       </Menu.Item>
@@ -29,6 +30,13 @@ function MenuItems() {
       </Menu.Item>
       <Menu.Item key="onramp">
         <NavLink to="/onramp">💵 Fiat</NavLink>
+      </Menu.Item>
+    */}
+      <Menu.Item key="/salientyachtsnft">
+        <NavLink to="/salientyachtsnft">⛵ Salient Yachts</NavLink>
+      </Menu.Item>
+      <Menu.Item key="/salientyachtrewards">
+        <NavLink to="/salientyachtrewards">💰 Salient Rewards</NavLink>
       </Menu.Item>
       <Menu.Item key="/erc20balance">
         <NavLink to="/erc20balance">💰 Balances</NavLink>

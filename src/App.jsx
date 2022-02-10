@@ -23,7 +23,7 @@ import Contract from "components/Contract/Contract";
 import Text from "antd/lib/typography/Text";
 import Ramper from "components/Ramper";
 import MenuItems from "./components/MenuItems";
-import { SALIENT_YACHT_NFT_ADDR, SALIENT_YACHT_NFT_ABI, SALIENT_YAGHT_STREAM_ABI } from "./constants";
+import { SALIENT_YACHT_NFT_ADDR, SALIENT_YACHT_NFT_ABI, SALIENT_YAGHT_STREAM_ABI, CHAINLINK_AVAX_USD_ADDR, CHAINLINK_AGGREGATORV3_INTERFACE_ABI } from "./constants";
 import { ConsoleSqlOutlined } from "@ant-design/icons";
 //import Moralis from "moralis/types";
 const { Header, Footer } = Layout;
@@ -89,10 +89,9 @@ function App ({ isServerInfo }) {
     abi: SALIENT_YAGHT_STREAM_ABI,
   };
 
-  const streamContractOptions_2 = {
-    chain: "0xa869",
-    address: streamContractAddr,
-    abi: SALIENT_YAGHT_STREAM_ABI,
+  const chainlinkOptions = {
+    contractAddress: CHAINLINK_AVAX_USD_ADDR,
+    abi: CHAINLINK_AGGREGATORV3_INTERFACE_ABI,
   };
   
   //let streamsDisplay = "";
@@ -119,6 +118,28 @@ function App ({ isServerInfo }) {
           <Switch>
             <Route path="/salientyachtsnft">
               <Card title="Salient Yachts" size="large" style={{ marginTop: 5, width: "100%" }}>
+                <div>
+                  <Button onClick={async () => {
+                    const latestPrice = await Moralis.executeFunction({ functionName : 'latestRoundData', 
+                      params : {}, ...chainlinkOptions });
+                    console.log("----> latestPrice: ", latestPrice);
+                    if (latestPrice.answer) {
+                      const price = Number(latestPrice.answer) / (10 ** 8);
+                      console.log("-----> 1 AVAX = ", price, " USD");
+                      console.log("-----> 1 USD    = ", 1 / price, " AVAX");
+                      console.log("-----> 10 USD   = ", 10 / price, " AVAX");
+                      console.log("-----> 100 USD  = ", 100 / price, " AVAX");
+                      // remember to multiply the above price by 10 ** 18 to convert it to wei.
+                    }
+                  }}>Get AVAX/USD Price From ChainLink</Button>
+                </div>
+                <div>
+                  <Button onClick={async () => {
+                    const remainingNFTBalance = await Moralis.executeFunction({ functionName : 'getRemainingNFTBalance', 
+                      params: {}, ...nftContractOptions});
+                    console.log("----> remainingNFTBalance: " + remainingNFTBalance);
+                  }}>Get Remaining NFT Balance</Button>
+                </div>
                 <div>Which NFT (0 = Common, 1 = Rare, 2 = Ultra Rare: <Input size="large" type="number" value={nftType} onChange={e => setNftType(e.target.value)} /></div>
                 <div>How Many NFT's: <Input size="large" type="number" value={noOfNfts} onChange={e => setNoOfNfts(e.target.value)} /></div>
                 <div>Payment (AVAX): <Input size="large" type="number" value={nftTxnAmount} onChange={e => setNftTxnAmount(e.target.value)} /></div>
@@ -150,7 +171,7 @@ function App ({ isServerInfo }) {
                       const currentUser = Moralis.User.current();
                       console.log("-----> currentUser.ethAddress: ", currentUser.get("ethAddress"));
 
-                      const streamEvtTbl = Moralis.Object.extend("SYONEStreamCreated");
+                      const streamEvtTbl = Moralis.Object.extend("SYONEStreamCreatedVTwo");
                       const query = new Moralis.Query(streamEvtTbl);
                       query.equalTo("recipient", currentUser.get("ethAddress").toLowerCase());
                       query.equalTo("sender", SALIENT_YACHT_NFT_ADDR.toLowerCase());

@@ -2,7 +2,9 @@
 // export const SALIENT_YACHT_NFT_ADDR = "0x3cDA2191FD8Be5BA6De955207aC16b54CDFf3B9d";
 // export const SALIENT_YACHT_NFT_ADDR = "0xBC7d93e15a2ba263DFDA8D3046949c9141BACcd2";
 // export const SALIENT_YACHT_NFT_ADDR = "0xfF60ec1891f1238F68371D5573A658842aA97877";
-export const SALIENT_YACHT_NFT_ADDR = "0xae3A7C5c41E824B37c6548cfC1F44603e13db6dC";
+// export const SALIENT_YACHT_NFT_ADDR = "0xae3A7C5c41E824B37c6548cfC1F44603e13db6dC";
+export const SALIENT_YACHT_NFT_ADDR = "0xFF43BD526405d98b71A79B21cd35E14707323fbD";
+export const CHAINLINK_AVAX_USD_ADDR = "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"; //for Avalanche Fuji testnet
 
 export const SALIENT_YACHT_NFT_ABI = [
   {
@@ -184,6 +186,19 @@ export const SALIENT_YACHT_NFT_ABI = [
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRemainingNFTBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -415,7 +430,13 @@ export const SALIENT_YACHT_NFT_ABI = [
   {
     "inputs": [],
     "name": "toggleUseFixedAvaxPrice",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -995,3 +1016,5 @@ export const SALIENT_YAGHT_STREAM_ABI = [
     "type": "function"
   }
 ];
+
+export const CHAINLINK_AGGREGATORV3_INTERFACE_ABI = [{ "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];

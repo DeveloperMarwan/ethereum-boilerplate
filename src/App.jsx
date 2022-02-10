@@ -78,6 +78,7 @@ function App ({ isServerInfo }) {
   const [withdrawalAmt, setWithdrawalAmt] = useState(0);
   const [streamsData, setStreamsData] = useState([]);
   const [currentNftPrice, setCurrentNftPrice] = useState(0);
+  const [affiliateId, setAffiliateId] = useState("");
 
   const nftContractOptions = {
     contractAddress: SALIENT_YACHT_NFT_ADDR,
@@ -93,9 +94,7 @@ function App ({ isServerInfo }) {
     contractAddress: CHAINLINK_AVAX_USD_ADDR,
     abi: CHAINLINK_AGGREGATORV3_INTERFACE_ABI,
   };
-  
-  //let streamsDisplay = "";
-  
+    
   return (
     <Layout style={{ height: "100vh", overflow: "auto" }}>
       <Router>
@@ -143,15 +142,18 @@ function App ({ isServerInfo }) {
                 <div>Which NFT (0 = Common, 1 = Rare, 2 = Ultra Rare: <Input size="large" type="number" value={nftType} onChange={e => setNftType(e.target.value)} /></div>
                 <div>How Many NFT's: <Input size="large" type="number" value={noOfNfts} onChange={e => setNoOfNfts(e.target.value)} /></div>
                 <div>Payment (AVAX): <Input size="large" type="number" value={nftTxnAmount} onChange={e => setNftTxnAmount(e.target.value)} /></div>
+                <div>Affilaite Id (optional): <Input size="large" type="text" value={affiliateId} onChange={e => setAffiliateId(e.target.value)} /></div>
                 <div><Button onClick={async () => {
                   console.log("----> noOfNfts     = ", noOfNfts);
                   console.log("----> nftTxnAmount = ", nftTxnAmount);
+                  console.log("----> affiliateId  = ", affiliateId);
                   // const nftTxnAmountInWei = Moralis.Units.ETH(nftTxnAmount + "");
                   // console.log("----> nftTxnAmountInWei = ", nftTxnAmountInWei);
                   const nftTxnResult = await Moralis.executeFunction({ functionName: 'buyYachtNFT', msgValue: nftTxnAmount, 
                   params: {
                     numberOfTokens: noOfNfts,
                     nftType: nftType,
+                    affiliateId: affiliateId,
                   },...nftContractOptions });
                   console.log("----> nftTxnResult = ", nftTxnResult);
                   console.log("----> currentNftPrice = ", currentNftPrice);

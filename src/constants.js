@@ -3,7 +3,8 @@
 // export const SALIENT_YACHT_NFT_ADDR = "0xBC7d93e15a2ba263DFDA8D3046949c9141BACcd2";
 // export const SALIENT_YACHT_NFT_ADDR = "0xfF60ec1891f1238F68371D5573A658842aA97877";
 // export const SALIENT_YACHT_NFT_ADDR = "0xae3A7C5c41E824B37c6548cfC1F44603e13db6dC";
-export const SALIENT_YACHT_NFT_ADDR = "0xFF43BD526405d98b71A79B21cd35E14707323fbD";
+// export const SALIENT_YACHT_NFT_ADDR = "0xFF43BD526405d98b71A79B21cd35E14707323fbD";
+export const SALIENT_YACHT_NFT_ADDR = "0xcef1bFc0b864193278a66bFDdC99EdE58C66E319";
 export const CHAINLINK_AVAX_USD_ADDR = "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"; //for Avalanche Fuji testnet
 
 export const SALIENT_YACHT_NFT_ABI = [
@@ -22,6 +23,31 @@ export const SALIENT_YACHT_NFT_ABI = [
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "_affiliateId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_numberOfTokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SalientYachtsSYONE_v02.NFTType",
+        "name": "_nftType",
+        "type": "uint8"
+      }
+    ],
+    "name": "AffiliateSale",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -162,14 +188,55 @@ export const SALIENT_YACHT_NFT_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "enum SalientYachtsSYONE_v01.NFTType",
+        "internalType": "enum SalientYachtsSYONE_v02.NFTType",
         "name": "nftType",
         "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "affiliateId",
+        "type": "string"
       }
     ],
     "name": "buyYachtNFT",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "inAffiliateId",
+        "type": "string"
+      }
+    ],
+    "name": "getAffiliateSales",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "saleDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "numberOfNfts",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum SalientYachtsSYONE_v02.NFTType",
+            "name": "nftType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct SalientYachtsSYONE_v02.NFTSale[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
